@@ -1,4 +1,4 @@
-Backpropagation核心解决问题是求：损失函数的w，b的偏导。  
+**Backpropagation核心解决问题是求：损失函数的w，b的偏导。**
 例如：
 import tensorflow as tf
 w1 = tf.Variable(tf.random_normal((2, 3), stddev=1, seed=1))
@@ -23,8 +23,8 @@ with tf.Session() as sess:
 """
 损失函数
 
-得到前向传播结果之后,需要定义一个损失函数来刻画当前的预测值与真实值(标记好的数据集)之间的差距, 然后通过反向传播算法(back-propagation)来调整神经网络参数的取值,使得差距可以被缩小.
-简单的损失函数
+**得到前向传播结果之后,需要定义一个损失函数来刻画当前的预测值与真实值(标记好的数据集)之间的差距, 然后通过反向传播算法(back-propagation)来调整神经网络参数的取值,使得差距可以被缩小.
+简单的损失函数**
 
 # 使用 sigmoid 函数将 y 转换为 0～1 之间的数值。转换后 y 代表预测是正样本的概率
 # 1-y 代表 预测是负样本的概率
@@ -34,7 +34,7 @@ cross_entropy = -tf.reduce_mean(y * tf.log(tf.clip_by_value(y,1e-10,1.0))+
                                 (1-y)*tf.log(tf.clip_by_value(1-y,1e-10,1.0)))
 # 学习率
 learning_rate = 0.001
-# 定义反向传播算法来优化神经网络中的参数
+# **定义反向传播算法来优化神经网络中的参数**
 train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 其中 cross_entropy定义了真实值和预测值之间的交叉熵 (cross entropy), 这是分类问题中一个常用的损失函数
 
