@@ -21,6 +21,8 @@ with tf.Session() as sess:
  [3.957578]
  [3.957578]
  [3.957578]]
+ ****
+ 
 损失函数
 
 **得到前向传播结果之后,需要定义一个损失函数来刻画当前的预测值与真实值(标记好的数据集)之间的差距, 然后通过反向传播算法(back-propagation)来调整神经网络参数的取值,使得差距可以被缩小.
@@ -41,7 +43,7 @@ train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 train_step定义了反向传播的优化方法 目前TensorFlow支持10种不同的优化器, 常用的有tf.train.GradientDescentOptimizer、tf.train.AdamOptimizer和tf.train.MomentumOptimizer
 
 在定义了反向传播算法之后,通过sess.run(train_step)就可以对所有在GraphKeys.TRAINABLE_VARIABLES集合中的变量进行优化,使得当前batch下损失函数值更小
-
+****
 完整的神经网络样例程序
 ```
 import tensorflow as tf
