@@ -1,4 +1,4 @@
-**Backpropagation核心解决问题是求：损失函数的w，b的偏导。**
+##Backpropagation核心解决问题是求：损失函数的w，b的偏导。
 例如：
 ```
 import tensorflow as tf
