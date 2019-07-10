@@ -1,5 +1,6 @@
 **Backpropagation核心解决问题是求：损失函数的w，b的偏导。**
 例如：
+```
 import tensorflow as tf
 w1 = tf.Variable(tf.random_normal((2, 3), stddev=1, seed=1))
 w2 = tf.Variable(tf.random_normal((3, 1), stddev=1, seed=1))
@@ -14,13 +15,12 @@ with tf.Session() as sess:
     feed_dict ={x:[[0.7,0.9],[0.7,0.9],[0.7,0.9],[0.7,0.9]]}
     print(sess.run(y,feed_dict))
 
-"""
+```
 结果:
 [[3.957578]
  [3.957578]
  [3.957578]
  [3.957578]]
-"""
 损失函数
 
 **得到前向传播结果之后,需要定义一个损失函数来刻画当前的预测值与真实值(标记好的数据集)之间的差距, 然后通过反向传播算法(back-propagation)来调整神经网络参数的取值,使得差距可以被缩小.
@@ -43,7 +43,7 @@ train_step定义了反向传播的优化方法 目前TensorFlow支持10种不同
 在定义了反向传播算法之后,通过sess.run(train_step)就可以对所有在GraphKeys.TRAINABLE_VARIABLES集合中的变量进行优化,使得当前batch下损失函数值更小
 
 完整的神经网络样例程序
-
+```
 import tensorflow as tf
 # 通过RandomState生成模拟数据集
 from numpy.random import RandomState
@@ -106,7 +106,7 @@ with tf.Session() as sess:
         if i % 1000 == 0:
             total_cross_entropy = sess.run(cross_entropy,feed_dict={x:X,_y:Y})
             print("After {0} training step(s),cross entropy on all data is {1}".format(i,total_cross_entropy))
-
+```
 """
 输出:
 After 43000 training step(s),cross entropy on all data is 1.3634375761739648e-07
