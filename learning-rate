@@ -1,1 +1,9 @@
+学习率设置多少合适：
+学习率过大震荡不收敛，学习率小了收敛速度慢。
+指数衰减学习率
+learning-rate=learning_rate_base.learning_rate_decay*(global_step/learning_rate_step)
 
+global_step=tf.Variable(0,trainable=False)
+learning_rate=tf.train.exponential_decay(
+LEARNING_RATE_BASE,global_step,LEARNING_RATE_STEP,LEARNING_RATE_DECAY,staircase=True
+)
