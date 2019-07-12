@@ -1,9 +1,15 @@
 学习率设置多少合适：
 学习率过大震荡不收敛，学习率小了收敛速度慢。
-指数衰减学习率
+一、指数衰减学习率
 learning-rate=learning_rate_base.learning_rate_decay*(global_step/learning_rate_step)
 
 global_step=tf.Variable(0,trainable=False)
 learning_rate=tf.train.exponential_decay(
 LEARNING_RATE_BASE,global_step,LEARNING_RATE_STEP,LEARNING_RATE_DECAY,staircase=True
+)
+二、滑动平均（影子值）
+影子=衰减率*影子+（1-衰减率）*参数 影子初值=参数初值
+衰减率=min{MOVING_AVERGE_DECAY,1+轮数/10+轮数}
+ema=tf.train.ExponentialMovingAverage(
+ema_op=ema.apply([tf.trainable_variables()])
 )
