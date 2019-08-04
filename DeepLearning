@@ -1,1 +1,163 @@
-#123
+神经网络基本结构及梯度下降
+![神经网络原理图](https://github.com/SuperrrWu/deep-learning/blob/master/Image/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%B1%95%E7%A4%BA%E5%9B%BE.jpg)
+
+deep-learning的深度是指hidden layers
+
+x:训练输入
+
+y:训练输出
+
+Cost-function（目标函数、损失函数）:
+
+C(w,b)=Σx(1/2n)*abs(y(x)-t)
+
+最小化问题可以使用梯度下降解决（gradient descent）
+
+C(w,b)有两个变量，我们定义为V1，V2。
+
+这是一个三维图像
+
+通常可以通过微积分解决，如果v包含的变量过多，无法到达最低点。
+
+一个变量的情况：假设一个小球在曲面上的某一点，滚动到最低点。
+
+前提是：目标函数需要是凸函数。学习率表示每一步的大小，可能会有局部最优解。
+对于梯度下降，我们需要计算对于每个x的梯度，因此当数据集过大时侯，计算速率会很慢。
+
+随机梯度下降
+
+对于梯度下降，我们需要计算对于每个x的梯度，因此当数据集过大时侯，计算速率会很慢。
+
+所以我们有一个梯度下降算法(stochastic gradient descent)：
+
+基本原理：从所有训练实例中取一个小取样（sample）：X1,X2,X3...Xm（mini-batch）
+
+如果样本够大，则计算出来的梯度向量近似于正确。然后重新选择一个mini-batch，直到所有的训练实例，一轮epoch完成。
+
+BP算法
+
+Backpropagation核心解决问题是求：损失函数的w，b的偏导。
+例如：
+```
+import tensorflow as tf
+w1 = tf.Variable(tf.random_normal((2, 3), stddev=1, seed=1))
+w2 = tf.Variable(tf.random_normal((3, 1), stddev=1, seed=1))
+x = tf.placeholder(tf.float32,shape=(4,2),name="input")
+a = tf.matmul(x, w1)
+y = tf.matmul(a, w2)
+
+with tf.Session() as sess:
+    # 因为wl和w2都还没有运行初始化,不能直接sess.run(y)来获取y的取值
+    init_op = tf.global_variables_initializer()
+    sess.run(init_op) # 初始化全部节点op
+    feed_dict ={x:[[0.7,0.9],[0.7,0.9],[0.7,0.9],[0.7,0.9]]}
+    print(sess.run(y,feed_dict))
+
+```
+结果:
+[[3.957578]
+ [3.957578]
+ [3.957578]
+ [3.957578]]
+ ****
+ 
+损失函数
+
+**得到前向传播结果之后,需要定义一个损失函数来刻画当前的预测值与真实值(标记好的数据集)之间的差距, 然后通过反向传播算法(back-propagation)来调整神经网络参数的取值,使得差距可以被缩小.
+简单的损失函数**
+
+# 使用 sigmoid 函数将 y 转换为 0～1 之间的数值。转换后 y 代表预测是正样本的概率
+# 1-y 代表 预测是负样本的概率
+y=tf.sigmoid(y)
+# 定义损失函数(交叉熵)来刻画预测值与真实值的差距
+cross_entropy = -tf.reduce_mean(y * tf.log(tf.clip_by_value(y,1e-10,1.0))+
+                                (1-y)*tf.log(tf.clip_by_value(1-y,1e-10,1.0)))
+# 学习率
+learning_rate = 0.001
+# **定义反向传播算法来优化神经网络中的参数**
+train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
+其中 cross_entropy定义了真实值和预测值之间的交叉熵 (cross entropy), 这是分类问题中一个常用的损失函数
+
+train_step定义了反向传播的优化方法 目前TensorFlow支持10种不同的优化器, 常用的有tf.train.GradientDescentOptimizer、tf.train.AdamOptimizer和tf.train.MomentumOptimizer
+
+在定义了反向传播算法之后,通过sess.run(train_step)就可以对所有在GraphKeys.TRAINABLE_VARIABLES集合中的变量进行优化,使得当前batch下损失函数值更小
+****
+完整的神经网络样例程序
+```
+import tensorflow as tf
+# 通过RandomState生成模拟数据集
+from numpy.random import RandomState
+# 定义训练数据 batch 的大小
+batch_size = 8
+# 定义神经网络的参数
+w1 = tf.Variable(tf.random_normal((2, 3), stddev=1, seed=1))
+w2 = tf.Variable(tf.random_normal((3, 1), stddev=1, seed=1))
+
+# 在 shape 的一个维度上使用 None 可以方便使用不同的 batch 大小. 在训练时需要把数据分成
+# 成比较小的 batch， 但是在测试时，可以一次性使用全部的数据. 当数据集比较小时这样比较方便
+# 测试, 当数据集比较大时，将大量数据放入一个 batch 可能会导致内存溢出
+x = tf.placeholder(tf.float32,shape=(None,2),name="x-input")
+_y = tf.placeholder(tf.float32,shape=(None,1),name="y-input")
+
+# 定义神经网络的前向传播过程
+a = tf.matmul(x, w1)
+y = tf.matmul(a, w2)
+
+# 定义损失函数和反向传播的算法
+y=tf.sigmoid(y)
+
+# 定义损失函数(交叉熵)来刻画预测值与真实值的差距
+cross_entropy = -tf.reduce_mean( _y * tf.log(tf.clip_by_value(y,1e-10,1.0))+
+                                (1-y)*tf.log(tf.clip_by_value(1-y,1e-10,1.0)))
+# 学习率
+learning_rate = 0.001
+# 定义反向传播算法来优化神经网络中的参数
+train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
+
+# 通过随机数生成一个模拟的数据集
+rdm = RandomState(1)
+dataset_size = 128  # 样本数量
+X = rdm.rand(dataset_size,2)
+
+# 定义规则来给出样本的标签. x1+x2<1的样例都认为是正样本(比如零件合格),其他为情况为负样本(零件不合格)
+# 大部分解决分类问题的神经网络都采用0来表示负样本,1来表示正样本
+Y = [[int(x1+x2<1)] for (x1,x2) in X]
+
+# 创建一个会话来运行TensorFlow程序
+with tf.Session() as sess:
+    # 因为wl和w2都还没有运行初始化,不能直接sess.run(y)来获取y的取值
+    init_op = tf.global_variables_initializer()
+    sess.run(init_op) # 初始化全部节点op
+    # 打印最初的神经网络节点参数值
+    print("w1: ",sess.run(w1))
+    print("w2: ",sess.run(w2))
+
+    # 设定训练的轮数
+    STEPS = 50000
+    for i in range(STEPS):
+        # 每次选取batch_size个样本进行训练
+        start = (i*batch_size) % dataset_size
+        end = min(start+batch_size,dataset_size)
+
+        # 通过选取的样本训练神经网络并更新参数
+        sess.run(train_step,feed_dict={x:X[start:end],_y:Y[start:end]})
+        
+        # 每隔1000轮 就计算在所有的数据上的交叉熵并输出
+        if i % 1000 == 0:
+            total_cross_entropy = sess.run(cross_entropy,feed_dict={x:X,_y:Y})
+            print("After {0} training step(s),cross entropy on all data is {1}".format(i,total_cross_entropy))
+```
+"""
+输出:
+After 43000 training step(s),cross entropy on all data is 1.3634375761739648e-07
+After 44000 training step(s),cross entropy on all data is 9.776589138255076e-08
+After 45000 training step(s),cross entropy on all data is 7.139959734558943e-08
+After 46000 training step(s),cross entropy on all data is 4.426699007353818e-08
+After 47000 training step(s),cross entropy on all data is 3.026656614224521e-08
+After 48000 training step(s),cross entropy on all data is 1.577882535741537e-08
+After 49000 training step(s),cross entropy on all data is 1.577882535741537e-08
+"""
+
+cross-entropy
+
+
